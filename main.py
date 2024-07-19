@@ -6,7 +6,7 @@ app = FastAPI()
 
 # Define allowed origins
 origins = [
-    "http://localhost:3000",  # Replace with your frontend origin
+    "https://bar-resumewebsite.netlify.app",  # Replace with your frontend origin
 ]
 
 # Add CORS middleware to the app
