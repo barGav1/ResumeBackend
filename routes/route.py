@@ -3,6 +3,7 @@ from pydantic import ValidationError
 from bson import ObjectId
 from  models.users import User
 from  models.resumes import Resume
+from  models.JobDescription import JobDescription
 import uuid
 from config.database import db_resumes, db_users 
 from schema.schemas import list_users
@@ -154,29 +155,14 @@ async def delete_resume(user_id: str, resume_number: int):
         raise HTTPException(status_code=404, detail="Resume not found")
     return {"message": "Resume deleted successfully"}
 
+
 @router.post("/generate-summary")
-async def generate_summary(user_data: Resume):
+async def generate_summary(job: JobDescription):
     try:
-        print("Received data for summary generation:", user_data.dict())
-        
-        # Rest of your code...
+        # Prepare the prompt for the AI model
+        prompt = f"Summarize the following job description in a concise manner:\n\n{job.description}\n\nSummary:"
 
-    except ValidationError as e:
-        print("Validation error:", e.json())
-        raise HTTPException(status_code=422, detail=e.errors())
-    except Exception as e:
-        print("Unexpected error:", str(e))
-        raise HTTPException(status_code=500, detail=str(e))
-    try:
-        # Prepare the prompt for GPT-3
-        prompt = f"Generate a professional summary for a resume based on the following information:\n\n"
-        prompt += f"Name: {user_data.name}\n"
-        prompt += f"Skills: {', '.join(user_data.skills)}\n"
-        prompt += f"Experience: {', '.join([exp['title'] for exp in user_data.experiences])}\n"
-        prompt += f"Education: {', '.join([edu['degree'] for edu in user_data.education])}\n"
-        prompt += "The summary should be concise, highlighting key skills and experiences."
-
-        # Make the API call to OpenAI
+        # Make the API call to OpenAI (or your preferred AI model)
         response = openai.Completion.create(
             engine="text-davinci-002",
             prompt=prompt,
@@ -188,7 +174,6 @@ async def generate_summary(user_data: Resume):
 
         # Extract the generated summary
         summary = response.choices[0].text.strip()
-
         return {"summary": summary}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
