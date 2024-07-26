@@ -10,7 +10,7 @@ import openai
 import os
 router = APIRouter()
 
-openai.api_key = os.getenv("sk-proj-LRAIIufrSZg16hqvf1BdT3BlbkFJVzcc7dfZgajHmuX31msi")
+openai.api_key = os.getenv("OPEN_AI_KEY")
 
 def object_id_to_str(obj_id: ObjectId) -> str:
     return str(obj_id)
