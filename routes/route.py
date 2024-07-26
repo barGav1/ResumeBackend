@@ -6,8 +6,11 @@ from  models.resumes import Resume
 import uuid
 from config.database import db_resumes, db_users 
 from schema.schemas import list_users
-
+import openai
+import os
 router = APIRouter()
+
+openai.api_key = os.getenv("sk-proj-LRAIIufrSZg16hqvf1BdT3BlbkFJVzcc7dfZgajHmuX31msi")
 
 def object_id_to_str(obj_id: ObjectId) -> str:
     return str(obj_id)
@@ -150,3 +153,31 @@ async def delete_resume(user_id: str, resume_number: int):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Resume not found")
     return {"message": "Resume deleted successfully"}
+
+@router.post("/generate-summary")
+async def generate_summary(user_data: Resume):
+    try:
+        # Prepare the prompt for GPT-3
+        prompt = f"Generate a professional summary for a resume based on the following information:\n\n"
+        prompt += f"Name: {user_data.name}\n"
+        prompt += f"Skills: {', '.join(user_data.skills)}\n"
+        prompt += f"Experience: {', '.join([exp['title'] for exp in user_data.experiences])}\n"
+        prompt += f"Education: {', '.join([edu['degree'] for edu in user_data.education])}\n"
+        prompt += "The summary should be concise, highlighting key skills and experiences."
+
+        # Make the API call to OpenAI
+        response = openai.Completion.create(
+            engine="text-davinci-002",
+            prompt=prompt,
+            max_tokens=150,
+            n=1,
+            stop=None,
+            temperature=0.7,
+        )
+
+        # Extract the generated summary
+        summary = response.choices[0].text.strip()
+
+        return {"summary": summary}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
