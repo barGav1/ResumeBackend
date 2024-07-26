@@ -27,8 +27,8 @@ class Language(BaseModel):
     level: Optional[str] = None
 
 class Resume(BaseModel):
-    user_id: str
-    resume_number: int
+    user_id: Optional[str]
+    resume_number: Optional[int]
     name: str
     email: Optional[EmailStr] = None
     linkedin: Optional[str] = None
