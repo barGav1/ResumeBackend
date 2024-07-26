@@ -157,6 +157,17 @@ async def delete_resume(user_id: str, resume_number: int):
 @router.post("/generate-summary")
 async def generate_summary(user_data: Resume):
     try:
+        print("Received data for summary generation:", user_data.dict())
+        
+        # Rest of your code...
+
+    except ValidationError as e:
+        print("Validation error:", e.json())
+        raise HTTPException(status_code=422, detail=e.errors())
+    except Exception as e:
+        print("Unexpected error:", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+    try:
         # Prepare the prompt for GPT-3
         prompt = f"Generate a professional summary for a resume based on the following information:\n\n"
         prompt += f"Name: {user_data.name}\n"
